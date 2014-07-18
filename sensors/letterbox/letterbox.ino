@@ -37,8 +37,12 @@
 #define VCNL4000_AMBIENTREADY 0x40
 #define VCNL4000_PROXIMITYREADY 0x20
 
-int postmanLDR = 0; 
-int ownerLDR = 1;
+int postmanLDRPin = 0; 
+int ownerLDRPin = 1;
+
+int proximitySensorVal;
+float proximityFilterVal = .5;
+float proximitySmoothedVal;
   
 void setup() {
   Serial.begin(9600);
@@ -97,9 +101,9 @@ void loop() {
   
   // print LDR values
   Serial.print("Postman = ");
-  Serial.print(analogRead(postmanLDR));
+  Serial.print(analogRead(postmanLDRPin));
   Serial.print("\tOwner = ");
-  Serial.print(analogRead(ownerLDR));
+  Serial.print(analogRead(ownerLDRPin));
   
   while (1) {
     uint8_t result = read8(VCNL4000_COMMAND);
