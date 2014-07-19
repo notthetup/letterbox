@@ -32,3 +32,7 @@ Fix this setup on the ceiling of the letterbox
 VCNL 4000 pins:
 
 ![](readme-img/vcnl4000-pins.png)
+
+##Setup
+
+![](readme-img/setup.jpg)
