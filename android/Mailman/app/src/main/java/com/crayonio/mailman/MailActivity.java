@@ -12,6 +12,9 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -37,6 +40,7 @@ public class MailActivity extends Activity {
 
         mHandler = new Handler();
         mLeDeviceListAdapter = new LeDeviceListAdapter(this.getApplicationContext(), this);
+
     }
 
 
@@ -63,8 +67,25 @@ public class MailActivity extends Activity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
-        scanLeDevice(false);
-        scanLeDevice(true);
+        Button reconnectBtn = (Button) this.findViewById(R.id.reconnect);
+        final TextView statusView = (TextView) this.findViewById(R.id.status);
+        reconnectBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if ( mLeDeviceListAdapter.mNRFGatt != null){
+                    mLeDeviceListAdapter.mNRFGatt.disconnect();
+                    mLeDeviceListAdapter.clearDevices();
+                    statusView.setText("Uninitialized");
+
+                }
+                if (mScanning) {
+                    scanLeDevice(false);
+                }
+                scanLeDevice(true);
+
+            }
+        });
+
     }
 
     private void scanLeDevice(final boolean enable) {
