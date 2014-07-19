@@ -41,9 +41,22 @@ int postmanLDRPin = 0;
 int ownerLDRPin = 1;
 
 int proximitySensorVal;
-float proximityFilterVal = .5;
-float proximitySmoothedVal;
-  
+float proximityFilterVal = .9;
+int prevProximitySmoothedVal;
+int proximitySmoothedVal = 2310; // smoothed starting value for the proximity sensor
+
+int ownerSensorVal;
+float ownerFilterVal = .5;
+int ownerSmoothedVal = 4; // smoothed starting value for the owner ldr sensor
+
+int postmanSensorVal;
+float postmanFilterVal = .5;
+int postmanSmoothedVal = 0; 
+
+int bothSidesOpenThreshold = 20;
+
+int deliveries = 0; // number sent as notification to owner's device
+
 void setup() {
   Serial.begin(9600);
 
@@ -99,24 +112,51 @@ void loop() {
   // read ambient light!
   write8(VCNL4000_COMMAND, VCNL4000_MEASUREAMBIENT | VCNL4000_MEASUREPROXIMITY);
   
-  // print LDR values
+  // postman has opened letterbox?
+  postmanSensorVal = analogRead(postmanLDRPin);
+  postmanSmoothedVal = smooth(postmanSensorVal, postmanFilterVal, postmanSmoothedVal);
   Serial.print("Postman = ");
-  Serial.print(analogRead(postmanLDRPin));
+  Serial.print(postmanSmoothedVal);
+  
+  // owner has opened letterbox?
+  ownerSensorVal = analogRead(ownerLDRPin);
+  ownerSmoothedVal = smooth(ownerSensorVal, ownerFilterVal, ownerSmoothedVal);
   Serial.print("\tOwner = ");
-  Serial.print(analogRead(ownerLDRPin));
+  Serial.print(ownerSmoothedVal);
   
   while (1) {
     uint8_t result = read8(VCNL4000_COMMAND);
     //Serial.print("Ready = 0x"); Serial.println(result, HEX);
     if ((result & VCNL4000_AMBIENTREADY)&&(result & VCNL4000_PROXIMITYREADY)) {
 
-      Serial.print("\tAmbient = ");
-      Serial.print(read16(VCNL4000_AMBIENTDATA));
+//      Serial.print("\tAmbient = ");
+//      Serial.print(read16(VCNL4000_AMBIENTDATA));
+ 
+      // new mail was put inside the letterbox?
+      proximitySensorVal = read16(VCNL4000_PROXIMITYDATA);
+      proximitySmoothedVal = smooth(proximitySensorVal, proximityFilterVal, proximitySmoothedVal);
       Serial.print("\tProximity = ");
-      Serial.println(read16(VCNL4000_PROXIMITYDATA));
+      Serial.print(proximitySmoothedVal);
+      
       break;
     }
     delay(10);
+  }
+  
+  if(ownerSmoothedVal > bothSidesOpenThreshold && postmanSmoothedVal > bothSidesOpenThreshold) {
+    if(ownerSmoothedVal > postmanSmoothedVal) {
+        // owner opens letterbox
+        Serial.println("\t => Owner opened letterbox");
+        deliveries = 0; // owner has checked letterbox
+    } else {
+        // postman opens letterbox
+        Serial.println("\t => Postman opened letterbox");
+        
+        // check whether new mail has come
+        // code here ...
+    } 
+  } else {
+    Serial.println("\t => letterbox closed"); 
   }
   
    delay(100);
@@ -190,4 +230,19 @@ void write8(uint8_t address, uint8_t data)
   Wire.send(data);  
 #endif
   Wire.endTransmission();
+}
+
+int smooth(int data, float filterVal, float smoothedVal){
+
+
+  if (filterVal > 1){      // check to make sure param's are within range
+    filterVal = .99;
+  }
+  else if (filterVal <= 0){
+    filterVal = 0;
+  }
+
+  smoothedVal = (data * (1 - filterVal)) + (smoothedVal  *  filterVal);
+
+  return (int)smoothedVal;
 }
