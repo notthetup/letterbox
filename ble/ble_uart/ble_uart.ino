@@ -25,6 +25,13 @@ All text above, and the splash screen below must be included in any redistributi
 #define ADAFRUITBLE_RST 9
 
 Adafruit_BLE_UART BTLEserial = Adafruit_BLE_UART(ADAFRUITBLE_REQ, ADAFRUITBLE_RDY, ADAFRUITBLE_RST);
+
+uint8_t sendbuffer[] = {0};
+char sendbuffersize = 1;
+
+int test_value = 0;
+boolean prevPin = false;
+
 /**************************************************************************/
 /*!
     Configure the Arduino and start advertising with the radio
@@ -34,7 +41,9 @@ void setup(void)
 { 
   Serial.begin(9600);
   while(!Serial); // Leonardo/Micro should wait for serial init
-  Serial.println(F("Adafruit Bluefruit Low Energy nRF8001 Print echo demo"));
+  Serial.println(F("Letter Box Ready!"));
+  
+  pinMode(7, INPUT);
 
   BTLEserial.begin();
 }
@@ -68,34 +77,21 @@ void loop()
     // OK set the last status change to this one
     laststatus = status;
   }
-
-  if (status == ACI_EVT_CONNECTED) {
-    // Lets see if there's any data for us!
-    if (BTLEserial.available()) {
-      Serial.print("* "); Serial.print(BTLEserial.available()); Serial.println(F(" bytes available from BTLE"));
-    }
-    // OK while we still have something to read, get a character and print it out
-    while (BTLEserial.available()) {
-      char c = BTLEserial.read();
-      Serial.print(c);
-    }
-
-    // Next up, see if we have any data to get from the Serial console
-
-    if (Serial.available()) {
-      // Read a line from Serial
-      Serial.setTimeout(100); // 100 millisecond timeout
-      String s = Serial.readString();
-
-      // We need to convert the line to bytes, no more than 20 at this time
-      uint8_t sendbuffer[20];
-      s.getBytes(sendbuffer, 20);
-      char sendbuffersize = min(20, s.length());
-
-      Serial.print(F("\n* Sending -> \"")); Serial.print((char *)sendbuffer); Serial.println("\"");
-
-      // write the data
-      BTLEserial.write(sendbuffer, sendbuffersize);
-    }
+  
+  int currenPin = digitalRead(7);
+  
+  if (!prevPin && currenPin){
+    test_value++;
+    sendInt(test_value);
   }
+  
+  prevPin = currenPin;
+  
+}
+
+
+  void sendInt(int value){
+  sendbuffer[0] = value;
+  BTLEserial.write(sendbuffer, sendbuffersize);
+  Serial.print(F("\n* Sending -> \"")); Serial.print((char *)sendbuffer); Serial.println("\"");
 }
