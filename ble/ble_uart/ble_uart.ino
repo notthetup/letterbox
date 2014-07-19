@@ -4,8 +4,8 @@ This is an example for our nRF8001 Bluetooth Low Energy Breakout
   Pick one up today in the adafruit shop!
   ------> http://www.adafruit.com/products/1697
 
-Adafruit invests time and resources providing this open source code, 
-please support Adafruit and open-source hardware by purchasing 
+Adafruit invests time and resources providing this open source code,
+please support Adafruit and open-source hardware by purchasing
 products from Adafruit!
 
 Written by Kevin Townsend/KTOWN  for Adafruit Industries.
@@ -38,11 +38,11 @@ boolean prevPin = false;
 */
 /**************************************************************************/
 void setup(void)
-{ 
+{
   Serial.begin(9600);
   while(!Serial); // Leonardo/Micro should wait for serial init
   Serial.println(F("Letter Box Ready!"));
-  
+
   pinMode(7, INPUT);
 
   BTLEserial.begin();
@@ -77,20 +77,20 @@ void loop()
     // OK set the last status change to this one
     laststatus = status;
   }
-  
+
   int currenPin = digitalRead(7);
-  
+
   if (!prevPin && currenPin){
     test_value++;
     sendInt(test_value);
   }
-  
+
   prevPin = currenPin;
-  
+
 }
 
 
-  void sendInt(int value){
+void sendInt(int value){
   sendbuffer[0] = value;
   BTLEserial.write(sendbuffer, sendbuffersize);
   Serial.print(F("\n* Sending -> \"")); Serial.print((char *)sendbuffer); Serial.println("\"");

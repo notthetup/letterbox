@@ -18,9 +18,17 @@ Sensing deliveries in your physical letter box
 	- [Smoothing sensor data with low pass filter](http://blog.thomnichols.org/2011/08/smoothing-sensor-data-with-a-low-pass-filter)
 	- Test functionality of a [photo resistor with Arduino](http://playground.arduino.cc/Learning/PhotoResistor)
 	
-## Install
+## Install the software
 
 - Sensors: copy the folder `/sensors/letterbox` to `~/Documents/Arduino/letterbox`
+- Schematic: open the file `/schematic/letterbox.fzz` with [Fritzing](http://fritzing.org/download/)	
+	
+##Wiring the hardware
 
-## Hack all the things!
+Fix this setup on the ceiling of the letterbox
 
+![](readme-img/breadboard.jpg)
+
+VCNL 4000 pins:
+
+![](readme-img/vcnl4000-pins.png)
