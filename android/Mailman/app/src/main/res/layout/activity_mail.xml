@@ -9,6 +9,41 @@
     tools:context=".MailActivity">
 
     <TextView
+        android:id="@+id/statustitle"
+        android:text="@string/statustitle"
+        android:textSize="24sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/status"
+        android:text="@string/status"
+        android:layout_toRightOf="@+id/statustitle"
+        android:textSize="24sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/reconnect"
+        android:text="@string/reconnet"
+        android:layout_below="@+id/statustitle"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="80dp"
+        android:textSize="24sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/reset"
+        android:text="@string/reset"
+        android:layout_toRightOf="@+id/reconnect"
+        android:layout_alignBottom="@+id/reconnect"
+        android:textSize="24sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
         android:id="@+id/youhave"
         android:text="@string/you_have"
         android:textSize="48sp"
@@ -21,9 +56,10 @@
         android:id="@+id/num"
         android:layout_below="@+id/youhave"
         android:text="0"
+        android:textAlignment="center"
         android:textSize="48sp"
         android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
+        android:layout_width="60dip"
         android:layout_height="wrap_content" />
 
     <TextView
