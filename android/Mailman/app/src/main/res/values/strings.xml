@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Mailman</string>
+    <string name="you_have">You have</string>
+    <string name="deliveries">Deliveries</string>
+    <string name="action_settings">Settings</string>
+    <string name="ble_not_supported">BLE Not Supported</string>
+
+</resources>
