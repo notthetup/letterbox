@@ -139,7 +139,6 @@ void loop() {
     if(ownerSmoothedVal > postmanSmoothedVal) {                                                  // owner opens letterbox
         Serial.println("\t => Owner opened letterbox");
         ownerOpened = true;
-        deliveries = 0;                                         // owner has checked letterbox
     } else {                                                                                     // postman opens letterbox
         Serial.println("\t => Postman opened letterbox");
         postmanOpened = true;
@@ -150,7 +149,7 @@ void loop() {
       if(postmanOpened) {                                       // postman just closed 
          if(proximitySmoothedVal > 10 + previousMail) {
             Serial.println("\t => NEW MAIL DELIVERED !!!");
-            deliveries++; // send notification to owner's device
+            deliveries++; // send notification to owner's device -  mails delivered
             postmanOpened = false;
             previousMail = proximitySmoothedVal;
          } else {
@@ -160,9 +159,9 @@ void loop() {
          }
       }
       if(ownerOpened){                                        // owner just closed
-
         ownerOpened = false;
         previousMail = proximitySmoothedVal;
+        deliveries = 0;   // send notification to owner's device -  mails cleared
         Serial.println("\t => mails cleared"); 
       }
     } else {
