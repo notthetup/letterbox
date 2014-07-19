@@ -2,11 +2,11 @@
 // Written by Adafruit! Public domain.
 // To use: Connect:
 
-// VCC to 3.3-5V (5V is best if it is available)
-// GND to ground
-// SDA to i2c data (on classic arduinos Analog 4)
-// SCL to i2c clock (on classic arduinos, Analog 5)
-// The 3.3v pin is an ouptut if you need 3.3V
+// VCC to 3.3-5V (5V is best if it is available)     [pin 7 in diagram]
+// GND to ground                                     [pin 12 in diagram]
+// SDA to i2c data (on classic arduinos Analog 4)    [pin 4 in diagram]
+// SCL to i2c clock (on classic arduinos, Analog 5)  [pin 5 in diagram]
+// The 3.3v pin is an ouptut if you need 3.3V        
 
 // This sensor is 5V compliant so you can use it with 3.3 or 5V micros
 
