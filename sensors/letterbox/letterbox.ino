@@ -76,39 +76,31 @@ void setup() {
     
   
   write8(VCNL4000_IRLED, 20);        // set to 20 * 10mA = 200mA
-  Serial.print("IR LED current = ");
-  Serial.print(read8(VCNL4000_IRLED) * 10, DEC);
-  Serial.println(" mA");
-  
-  //write8(VCNL4000_SIGNALFREQ, 3);
-  Serial.print("Proximity measurement frequency = ");
-  uint8_t freq = read8(VCNL4000_SIGNALFREQ);
-  if (freq == VCNL4000_3M125) Serial.println("3.125 MHz");
-  if (freq == VCNL4000_1M5625) Serial.println("1.5625 MHz");
-  if (freq == VCNL4000_781K25) Serial.println("781.25 KHz");
-  if (freq == VCNL4000_390K625) Serial.println("390.625 KHz");
+//  Serial.print("IR LED current = ");
+//  Serial.print(read8(VCNL4000_IRLED) * 10, DEC);
+//  Serial.println(" mA");
+//  Serial.print("Proximity measurement frequency = ");
+//  uint8_t freq = read8(VCNL4000_SIGNALFREQ);
+//  if (freq == VCNL4000_3M125) Serial.println("3.125 MHz");
+//  if (freq == VCNL4000_1M5625) Serial.println("1.5625 MHz");
+//  if (freq == VCNL4000_781K25) Serial.println("781.25 KHz");
+//  if (freq == VCNL4000_390K625) Serial.println("390.625 KHz");
   
   write8(VCNL4000_PROXINITYADJUST, 0x81);
   Serial.print("Proximity adjustment register = ");
   Serial.println(read8(VCNL4000_PROXINITYADJUST), HEX);
-  
-  // arrange for continuous conversion
-  // write8(VCNL4000_AMBIENTPARAMETER, 0x89);
-
 }
 
 uint16_t readProximity() {
   write8(VCNL4000_COMMAND, VCNL4000_MEASUREPROXIMITY);
   while (1) {
     uint8_t result = read8(VCNL4000_COMMAND);
-    //Serial.print("Ready = 0x"); Serial.println(result, HEX);
     if (result & VCNL4000_PROXIMITYREADY) {
       return read16(VCNL4000_PROXIMITYDATA);
     }
     delay(1);
   }
 }
-
 
 
 void loop() {
@@ -135,7 +127,7 @@ void loop() {
       // proximity value
       proximitySensorVal = read16(VCNL4000_PROXIMITYDATA);
       proximitySmoothedVal = smooth(proximitySensorVal, proximityFilterVal, proximitySmoothedVal);
-      Serial.print("\tProximity = ");
+      Serial.print("\tMail = ");
       Serial.print(proximitySmoothedVal);
       
       break;
@@ -144,41 +136,34 @@ void loop() {
   }
   
   if(ownerSmoothedVal > bothSidesOpenThreshold && postmanSmoothedVal > bothSidesOpenThreshold) { // letterbox opened
-    if(ownerSmoothedVal > postmanSmoothedVal) {               // owner opens letterbox
+    if(ownerSmoothedVal > postmanSmoothedVal) {                                                  // owner opens letterbox
         Serial.println("\t => Owner opened letterbox");
         ownerOpened = true;
-        deliveries = 0; // owner has checked letterbox
-    } else {                                                  // postman opens letterbox
+        deliveries = 0;                                         // owner has checked letterbox
+    } else {                                                                                     // postman opens letterbox
         Serial.println("\t => Postman opened letterbox");
         postmanOpened = true;
     } 
-  } else {    // letterbox closed
+  } else {                                                                                       // letterbox closed
     if(postmanOpened || ownerOpened) {
       
       if(postmanOpened) {                                       // postman just closed 
          if(proximitySmoothedVal > 10 + previousMail) {
-            Serial.print("\tCurrent: ");
-            Serial.print(proximitySmoothedVal);
-            Serial.print("\t, Previous: ");
-            Serial.print(previousMail);
-            Serial.println("\t => new mail !!!");
+            Serial.println("\t => NEW MAIL DELIVERED !!!");
+            deliveries++; // send notification to owner's device
             postmanOpened = false;
             previousMail = proximitySmoothedVal;
          } else {
            postmanOpened = false;
            previousMail = proximitySmoothedVal;
-           Serial.println("\t => no mail"); 
+           Serial.println("\t => no mail delivered"); 
          }
       }
       if(ownerOpened){                                        // owner just closed
-        Serial.print("\tCurrent: ");
-        Serial.print(proximitySmoothedVal);
-        Serial.print("\t, Previous: ");
-        Serial.print(previousMail);
-        Serial.println("\t => no mail"); 
-        deliveries++; // send notification
+
         ownerOpened = false;
         previousMail = proximitySmoothedVal;
+        Serial.println("\t => mails cleared"); 
       }
     } else {
       Serial.println("\t => letterbox closed");
