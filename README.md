@@ -17,11 +17,10 @@ Sensing deliveries in your physical letter box
 	- [Low Pass Filter](http://en.wikipedia.org/wiki/Low-pass_filter) algorithm
 	- [Smoothing sensor data with low pass filter](http://blog.thomnichols.org/2011/08/smoothing-sensor-data-with-a-low-pass-filter)
 	- Test functionality of a [photo resistor with Arduino](http://playground.arduino.cc/Learning/PhotoResistor)
+	
+## Install
 
-
-
+- Sensors: copy the folder `/sensors/letterbox` to `~/Documents/Arduino/letterbox`
 
 ## Hack all the things!
-
-
 

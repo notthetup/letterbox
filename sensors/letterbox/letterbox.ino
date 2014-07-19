@@ -55,6 +55,10 @@ int postmanSmoothedVal = 0;
 
 int bothSidesOpenThreshold = 20;
 
+int previousMail = 2472; // no mail proximity value
+boolean postmanOpened = false;
+boolean ownerOpened = false;
+
 int deliveries = 0; // number sent as notification to owner's device
 
 void setup() {
@@ -89,7 +93,7 @@ void setup() {
   Serial.println(read8(VCNL4000_PROXINITYADJUST), HEX);
   
   // arrange for continuous conversion
-  //write8(VCNL4000_AMBIENTPARAMETER, 0x89);
+  // write8(VCNL4000_AMBIENTPARAMETER, 0x89);
 
 }
 
@@ -112,13 +116,13 @@ void loop() {
   // read ambient light!
   write8(VCNL4000_COMMAND, VCNL4000_MEASUREAMBIENT | VCNL4000_MEASUREPROXIMITY);
   
-  // postman has opened letterbox?
+  // postman ldr value
   postmanSensorVal = analogRead(postmanLDRPin);
   postmanSmoothedVal = smooth(postmanSensorVal, postmanFilterVal, postmanSmoothedVal);
   Serial.print("Postman = ");
   Serial.print(postmanSmoothedVal);
   
-  // owner has opened letterbox?
+  // owner ldr value
   ownerSensorVal = analogRead(ownerLDRPin);
   ownerSmoothedVal = smooth(ownerSensorVal, ownerFilterVal, ownerSmoothedVal);
   Serial.print("\tOwner = ");
@@ -126,13 +130,9 @@ void loop() {
   
   while (1) {
     uint8_t result = read8(VCNL4000_COMMAND);
-    //Serial.print("Ready = 0x"); Serial.println(result, HEX);
     if ((result & VCNL4000_AMBIENTREADY)&&(result & VCNL4000_PROXIMITYREADY)) {
-
-//      Serial.print("\tAmbient = ");
-//      Serial.print(read16(VCNL4000_AMBIENTDATA));
  
-      // new mail was put inside the letterbox?
+      // proximity value
       proximitySensorVal = read16(VCNL4000_PROXIMITYDATA);
       proximitySmoothedVal = smooth(proximitySensorVal, proximityFilterVal, proximitySmoothedVal);
       Serial.print("\tProximity = ");
@@ -143,20 +143,46 @@ void loop() {
     delay(10);
   }
   
-  if(ownerSmoothedVal > bothSidesOpenThreshold && postmanSmoothedVal > bothSidesOpenThreshold) {
-    if(ownerSmoothedVal > postmanSmoothedVal) {
-        // owner opens letterbox
+  if(ownerSmoothedVal > bothSidesOpenThreshold && postmanSmoothedVal > bothSidesOpenThreshold) { // letterbox opened
+    if(ownerSmoothedVal > postmanSmoothedVal) {               // owner opens letterbox
         Serial.println("\t => Owner opened letterbox");
+        ownerOpened = true;
         deliveries = 0; // owner has checked letterbox
-    } else {
-        // postman opens letterbox
+    } else {                                                  // postman opens letterbox
         Serial.println("\t => Postman opened letterbox");
-        
-        // check whether new mail has come
-        // code here ...
+        postmanOpened = true;
     } 
-  } else {
-    Serial.println("\t => letterbox closed"); 
+  } else {    // letterbox closed
+    if(postmanOpened || ownerOpened) {
+      
+      if(postmanOpened) {                                       // postman just closed 
+         if(proximitySmoothedVal > 10 + previousMail) {
+            Serial.print("\tCurrent: ");
+            Serial.print(proximitySmoothedVal);
+            Serial.print("\t, Previous: ");
+            Serial.print(previousMail);
+            Serial.println("\t => new mail !!!");
+            postmanOpened = false;
+            previousMail = proximitySmoothedVal;
+         } else {
+           postmanOpened = false;
+           previousMail = proximitySmoothedVal;
+           Serial.println("\t => no mail"); 
+         }
+      }
+      if(ownerOpened){                                        // owner just closed
+        Serial.print("\tCurrent: ");
+        Serial.print(proximitySmoothedVal);
+        Serial.print("\t, Previous: ");
+        Serial.print(previousMail);
+        Serial.println("\t => no mail"); 
+        deliveries++; // send notification
+        ownerOpened = false;
+        previousMail = proximitySmoothedVal;
+      }
+    } else {
+      Serial.println("\t => letterbox closed");
+    }
   }
   
    delay(100);
