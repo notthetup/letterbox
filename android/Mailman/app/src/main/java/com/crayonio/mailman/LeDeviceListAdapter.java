@@ -3,22 +3,23 @@ package com.crayonio.mailman;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.UUID;
-
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import java.util.UUID;
 
 /**
  * Created by chinmay on 19/7/14.
@@ -47,6 +48,7 @@ public class LeDeviceListAdapter {
 
     private TextView numView;
     private TextView mStatusView;
+
 
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
@@ -197,6 +199,15 @@ public class LeDeviceListAdapter {
             final Integer encodedInteger = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
 
             Log.i(TAG, "RX Received " + encodedInteger);
+            if (encodedInteger > Integer.parseInt(numView.getText().toString())){
+                try {
+                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    Ringtone r = RingtoneManager.getRingtone(mContext, notification);
+                    r.play();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             mParentActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
